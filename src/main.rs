@@ -1,5 +1,7 @@
 mod sha256;
 
 fn main() {
-    sha256::sha256("abc".as_bytes().to_vec());
+    for h in sha256::sha256("abc".as_bytes().to_vec()) {
+        print!("{:08x}", h);
+    }
 }

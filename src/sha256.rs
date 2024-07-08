@@ -66,17 +66,17 @@ fn hash(blocks: Vec<Vec<u32>>) -> [u32; 8] {
     ];
     let N = blocks.len();
 
-    for i in 1..N {
+    for i in 0..N {
         // 1.
-        let mut schedule: Vec<u32> = vec![0; 64];
+        let mut W: Vec<u32> = vec![0; 64];
         for t in 0..16 {
-            schedule[t] = blocks[i][t];
+            W[t] = blocks[i][t];
         }
         for t in 16..64 {
-            schedule[t] = e1(schedule[t - 2])
-                .wrapping_add(schedule[t - 7])
-                .wrapping_add(e0(schedule[t - 15]))
-                .wrapping_add(schedule[t - 16]);
+            W[t] = e1(W[t - 2])
+                .wrapping_add(W[t - 7])
+                .wrapping_add(e0(W[t - 15]))
+                .wrapping_add(W[t - 16]);
         }
 
         // 2.
@@ -95,8 +95,10 @@ fn hash(blocks: Vec<Vec<u32>>) -> [u32; 8] {
                 .wrapping_add(E1(e))
                 .wrapping_add(ch(e, f, g))
                 .wrapping_add(K[t])
-                .wrapping_add(schedule[t]);
+                .wrapping_add(W[t]);
+
             let T2 = E0(a).wrapping_add(maj(a, b, c));
+
             h = g;
             g = f;
             f = e;
@@ -104,7 +106,7 @@ fn hash(blocks: Vec<Vec<u32>>) -> [u32; 8] {
             d = c;
             c = b;
             b = a;
-            a = T1 + T2;
+            a = T1.wrapping_add(T2);
         }
 
         // 4.

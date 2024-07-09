@@ -26,17 +26,21 @@ fn pad(message: Vec<u8>) -> Vec<u8> {
     let mut bytes: Vec<u8> = vec![0; blocks * BYTES_PER_BLOCK];
 
     // Copy over the message bytes.
-    for (i, byte) in message.iter().enumerate() {
-        bytes[i] = *byte;
+    let mut i: usize = 0;
+    for byte in message {
+        bytes[i] = byte;
+        i += 1;
     }
 
-    bytes[message.len()] = 1 << 7;  // Append the '1' bit after the message.
+    bytes[i] = 1 << 7;  // Append the '1' bit after the message.
 
-    // Add the length of the message to the last 64 bits;
-    for byte in 0..8 {
-        let mask: u8 = !0;
-        let index = bytes.len() - 1 - byte;
-        bytes[index] = ((l & mask as usize) >> (byte * 8)) as u8;
+    // Add the length of the message to the last 64 bits.
+    i = bytes.len() - 8;
+    for j in (0..8).rev() {
+        let mask: usize = 0xff << j * 8;
+        let byte = (l & mask) >> j * 8;
+        bytes[i] = byte as u8;
+        i += 1;
     }
 
     bytes

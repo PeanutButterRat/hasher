@@ -45,7 +45,7 @@ fn pad(message: Vec<u8>) -> Vec<u8> {
 #[allow(non_snake_case)]
 fn parse(bytes: Vec<u8>) -> Vec<Vec<u32>> {
     let N = bytes.len() / BYTES_PER_BLOCK;
-    let mut blocks = vec![vec![0; WORDS_PER_BLOCK]];
+    let mut blocks = vec![vec![0; WORDS_PER_BLOCK]; N];
     let mut i: usize = 0;
 
     for block in 0..N {
@@ -73,9 +73,9 @@ fn hash(blocks: Vec<Vec<u32>>) -> [u32; 8] {
             W[t] = blocks[i][t];
         }
         for t in 16..64 {
-            W[t] = e1(W[t - 2])
+            W[t] = sigma1(W[t - 2])
                 .wrapping_add(W[t - 7])
-                .wrapping_add(e0(W[t - 15]))
+                .wrapping_add(sigma0(W[t - 15]))
                 .wrapping_add(W[t - 16]);
         }
 
@@ -92,12 +92,12 @@ fn hash(blocks: Vec<Vec<u32>>) -> [u32; 8] {
         // 3.
         for t in 0..64 {
             let T1 = h
-                .wrapping_add(E1(e))
+                .wrapping_add(epsilon1(e))
                 .wrapping_add(ch(e, f, g))
                 .wrapping_add(K[t])
                 .wrapping_add(W[t]);
 
-            let T2 = E0(a).wrapping_add(maj(a, b, c));
+            let T2 = epsilon0(a).wrapping_add(maj(a, b, c));
 
             h = g;
             g = f;
@@ -144,19 +144,19 @@ fn maj(x: u32, y: u32, z: u32) -> u32 {
 }
 
 #[allow(non_snake_case)]
-fn E0(x: u32) -> u32 {
+fn epsilon0(x: u32) -> u32 {
     rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22)
 }
 
 #[allow(non_snake_case)]
-fn E1(x: u32) -> u32 {
+fn epsilon1(x: u32) -> u32 {
     rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25)
 }
 
-fn e0(x: u32) -> u32 {
+fn sigma0(x: u32) -> u32 {
     rotr(x, 7) ^ rotr(x, 18) ^ shr(x, 3)
 }
 
-fn e1(x: u32) -> u32 {
+fn sigma1(x: u32) -> u32 {
     rotr(x, 17) ^ rotr(x, 19) ^ shr(x, 10)
 }

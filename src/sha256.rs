@@ -14,10 +14,10 @@ const K: [u32; 64] = [
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 ];
 
-pub fn sha256(message: Vec<u8>) -> [u32; 8] {
+pub fn hash(message: Vec<u8>) -> Vec<u8> {
     let bytes = pad(message);
     let blocks = parse(bytes);
-    hash(blocks)
+    transform(blocks)
 }
 
 fn pad(message: Vec<u8>) -> Vec<u8> {
@@ -63,7 +63,7 @@ fn parse(bytes: Vec<u8>) -> Vec<Vec<u32>> {
 }
 
 #[allow(non_snake_case)]
-fn hash(blocks: Vec<Vec<u32>>) -> [u32; 8] {
+fn transform(blocks: Vec<Vec<u32>>) -> Vec<u8> {
     let mut H: [u32; 8] = [  // 5.3.3
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
@@ -124,7 +124,16 @@ fn hash(blocks: Vec<Vec<u32>>) -> [u32; 8] {
         H[7] = h.wrapping_add(H[7]);
     }
 
-    H
+    let mut result: Vec<u8> = vec![0; H.len() * 4];
+
+    for (i, word) in H.iter().enumerate() {
+        result[i * 4] = (word >> 24) as u8;
+        result[i * 4 + 1] = ((word >> 16) & 0xff_u32) as u8;
+        result[i * 4 + 2] = ((word >> 8) & 0xff_u32) as u8;
+        result[i * 4 + 3] = (word & 0xff_u32) as u8;
+    }
+
+    result
 }
 
 fn join_word(b1: u8, b2: u8, b3: u8, b4: u8) -> u32 {

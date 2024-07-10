@@ -1,3 +1,6 @@
+// Developed using the specification published by NIST.
+// https://csrc.nist.gov/files/pubs/fips/180-2/final/docs/fips180-2.pdf
+
 const BITS_PER_BLOCK: usize = 512;
 const BITS_PER_BYTE: usize = 8;
 const BYTES_PER_BLOCK: usize = BITS_PER_BLOCK / BITS_PER_BYTE;
@@ -64,7 +67,7 @@ fn parse(bytes: Vec<u8>) -> Vec<Vec<u32>> {
 
 #[allow(non_snake_case)]
 fn transform(blocks: Vec<Vec<u32>>) -> Vec<u8> {
-    let mut H: [u32; 8] = [  // 5.3.3
+    let mut H: [u32; 8] = [
         0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
         0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
     ];

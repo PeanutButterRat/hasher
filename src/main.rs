@@ -1,6 +1,6 @@
 pub mod sha256;
 
-use std::path::PathBuf;
+use std::{path::PathBuf, fs};
 
 use clap::Parser;
 
@@ -15,9 +15,31 @@ struct App {
 
     /// Hash the string passed as the file argument instead of opening a file
     #[arg(short, long, action = clap::ArgAction::SetTrue)]
-    immediate: u8,
+    immediate: bool,
 }
 
+#[allow(unused)]
 fn main() {
-    let _cli = App::parse();
+    let cli = App::parse();
+
+    let algorithm = match cli.algorithm.to_ascii_lowercase().as_str() {
+        "sha256" => sha256::hash,
+        _ => |vec: Vec<u8>| Vec::new()
+    };
+
+    let message;
+
+    if cli.immediate {
+        message = cli.file.as_os_str()
+            .to_str()
+            .expect("failed to convert string")
+            .as_bytes()
+            .to_vec();
+    } else {
+        message = fs::read(cli.file).expect("failed to open file");
+    }
+
+    let result = algorithm(message);
+
+    println!("{}", hex::encode(result));
 }

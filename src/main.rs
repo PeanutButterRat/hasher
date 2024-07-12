@@ -1,9 +1,23 @@
-mod sha256;
+pub mod sha256;
+
+use std::path::PathBuf;
+
+use clap::Parser;
+
+#[derive(Parser)]
+#[command(version, about, long_about = None)]
+struct App {
+    /// Hashing algorithm to use
+    algorithm: String,
+
+    /// File to hash
+    file: PathBuf,
+
+    /// Hash the string passed as the file argument instead of opening a file
+    #[arg(short, long, action = clap::ArgAction::SetTrue)]
+    immediate: u8,
+}
 
 fn main() {
-    let hash = sha256::hash("abc".as_bytes().to_vec());
-
-    for h in hash {
-        print!("{:02x}", h);
-    }
+    let _cli = App::parse();
 }

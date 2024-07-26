@@ -1,7 +1,7 @@
 pub mod sha256;
 
 use std::{path::PathBuf, fs};
-
+use std::process::exit;
 use clap::Parser;
 
 #[derive(Parser)]
@@ -24,7 +24,10 @@ fn main() {
 
     let algorithm = match cli.algorithm.to_ascii_lowercase().as_str() {
         "sha256" => sha256::hash,
-        _ => |vec: Vec<u8>| Vec::new()
+        _ => {
+            println!("unknown algorithm specified ({})", cli.algorithm);
+            exit(1);
+        }
     };
 
     let message;

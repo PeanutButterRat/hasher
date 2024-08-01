@@ -49,11 +49,11 @@ fn pad(message: Vec<u8>) -> Vec<u8> {
 
     bytes[i] = 1 << 7;  // Append the '1' bit after the message.
 
-    // Add the length of the message to the last 64 bits.
+    // Add the length of the message to the last 128 bits.
     i = bytes.len() - 16;
     for j in (0..16).rev() {
-        let mask: usize = 0xff << j * 8;
-        let byte = (l & mask) >> j * 8;
+        let mask: u128 = 0xff << j * 8;
+        let byte = (l as u128 & mask) >> j * 8;
         bytes[i] = byte as u8;
         i += 1;
     }
@@ -144,14 +144,14 @@ fn transform(blocks: Vec<Vec<u64>>) -> Vec<u8> {
     let mut result: Vec<u8> = vec![0; H.len() * 8];
 
     for (i, word) in H.iter().enumerate() {
-        result[i * 4] = (word >> 56) as u8;
-        result[i * 4 + 1] = ((word >> 48) & 0xff_u64) as u8;
-        result[i * 4 + 2] = ((word >> 40) & 0xff_u64) as u8;
-        result[i * 4 + 3] = ((word >> 32) & 0xff_u64) as u8;
-        result[i * 4 + 4] = ((word >> 24) & 0xff_u64) as u8;
-        result[i * 4 + 5] = ((word >> 16) & 0xff_u64) as u8;
-        result[i * 4 + 6] = ((word >> 8) & 0xff_u64) as u8;
-        result[i * 4 + 7] = (word & 0xff_u64) as u8;
+        result[i * 8] = (word >> 56) as u8;
+        result[i * 8 + 1] = ((word >> 48) & 0xff_u64) as u8;
+        result[i * 8 + 2] = ((word >> 40) & 0xff_u64) as u8;
+        result[i * 8 + 3] = ((word >> 32) & 0xff_u64) as u8;
+        result[i * 8 + 4] = ((word >> 24) & 0xff_u64) as u8;
+        result[i * 8 + 5] = ((word >> 16) & 0xff_u64) as u8;
+        result[i * 8 + 6] = ((word >> 8) & 0xff_u64) as u8;
+        result[i * 8 + 7] = (word & 0xff_u64) as u8;
     }
 
     result
@@ -165,7 +165,7 @@ fn join_word(b1: u8, b2: u8, b3: u8, b4: u8, b5: u8, b6: u8, b7: u8, b8: u8) -> 
 }
 
 fn rotr(x: u64, n: u64) -> u64 {
-    (x >> n) | (x << (32 - n))
+    (x >> n) | (x << (64 - n))
 }
 
 fn shr(x: u64, n: u64) -> u64 {
@@ -196,4 +196,37 @@ fn sigma0(x: u64) -> u64 {
 
 fn sigma1(x: u64) -> u64 {
     rotr(x, 19) ^ rotr(x, 61) ^ shr(x, 6)
+}
+
+// Output was tested against the SHA tool from https://emn178.github.io/online-tools/sha256.html.
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn abc() {
+        let message = "abc".as_bytes().to_vec();
+        let expected = "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f";
+        let actual = hash(message);
+
+        assert_eq!(hex::encode(actual), expected)
+    }
+
+    #[test]
+    fn alphabet() {
+        let message = "abcedefghijklmnopqrstuvwxyz".as_bytes().to_vec();
+        let expected = "30eb6a75f0a781508e380fae61a8dc7040b660e40cc6fb8ab7e706e519ff70b8aa97904d8092c1dd881c26265afd536f4011d0ecd286175a60b0e71bde44d629";
+        let actual = hash(message);
+
+        assert_eq!(hex::encode(actual), expected)
+    }
+
+    #[test]
+    fn random() {
+        let message = "6d1e72ad03ddeb5de891e572e2396f8da015d899ef0e79503152d6010a3fe6916d1e72ad03ddeb5de891e572e2396f8da015d899ef0e79503152d6010a3fe6916d1e72ad03ddeb5de891e572e2396f8da015d899ef0e79503152d6010a3fe691".as_bytes().to_vec();
+        let expected = "a82213a62f6cc1e41b44fff5fbd6d0be9d5bfd361a595ec70b5a3f13a9522d5584b9e03c987a5a050ab304751c08950326ea988b0d90fe6b9c76f47fc2a0a28a";
+        let actual = hash(message);
+
+        assert_eq!(hex::encode(actual), expected)
+    }
 }

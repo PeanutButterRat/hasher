@@ -101,7 +101,7 @@ If you wish to compile Hasher from source, the only thing you will need is a Rus
    cargo build
    ```
 
-Hasher should now be ready to use in the ```hasher/build``` folder. See #Usage for more details. 
+Hasher should now be ready to use in the ```hasher/build``` folder. See [usage](#usage) for more details. 
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

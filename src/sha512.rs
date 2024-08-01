@@ -26,7 +26,7 @@ const K: [u64; 80]= [
     0xca273eceea26619c, 0xd186b8c721c0c207, 0xeada7dd6cde0eb1e, 0xf57d4f7fee6ed178,
     0x06f067aa72176fba, 0x0a637dc5a2c898a6, 0x113f9804bef90dae, 0x1b710b35131c471b,
     0x28db77f523047d84, 0x32caab7b40c72493, 0x3c9ebe0a15c9bebc, 0x431d67c49c100d4c,
-    0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817,
+    0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 ];
 
 pub fn hash(message: Vec<u8>) -> Vec<u8> {
@@ -81,7 +81,81 @@ fn parse(bytes: Vec<u8>) -> Vec<Vec<u64>> {
 }
 
 #[allow(non_snake_case)]
-fn transform(blocks: Vec<Vec<u64>>) -> Vec<u8> { Vec::new() }
+fn transform(blocks: Vec<Vec<u64>>) -> Vec<u8> {
+    let mut H: [u64; 8] = [
+        0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
+        0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
+    ];
+    
+    for i in 0..blocks.len() {
+        // 1.
+        let mut W: Vec<u64> = vec![0; 80];
+        for t in 0..16 {
+            W[t] = blocks[i][t];
+        }
+        for t in 16..80 {
+            W[t] = sigma1(W[t - 2])
+                .wrapping_add(W[t - 7])
+                .wrapping_add(sigma0(W[t - 15]))
+                .wrapping_add(W[t - 16]);
+        }
+
+        // 2.
+        let mut a = H[0];
+        let mut b = H[1];
+        let mut c = H[2];
+        let mut d = H[3];
+        let mut e = H[4];
+        let mut f = H[5];
+        let mut g = H[6];
+        let mut h = H[7];
+
+        // 3.
+        for t in 0..80 {
+            let T1 = h
+                .wrapping_add(epsilon1(e))
+                .wrapping_add(ch(e, f, g))
+                .wrapping_add(K[t])
+                .wrapping_add(W[t]);
+
+            let T2 = epsilon0(a).wrapping_add(maj(a, b, c));
+
+            h = g;
+            g = f;
+            f = e;
+            e = d.wrapping_add(T1);
+            d = c;
+            c = b;
+            b = a;
+            a = T1.wrapping_add(T2);
+        }
+
+        // 4.
+        H[0] = a.wrapping_add(H[0]);
+        H[1] = b.wrapping_add(H[1]);
+        H[2] = c.wrapping_add(H[2]);
+        H[3] = d.wrapping_add(H[3]);
+        H[4] = e.wrapping_add(H[4]);
+        H[5] = f.wrapping_add(H[5]);
+        H[6] = g.wrapping_add(H[6]);
+        H[7] = h.wrapping_add(H[7]);
+    }
+
+    let mut result: Vec<u8> = vec![0; H.len() * 8];
+
+    for (i, word) in H.iter().enumerate() {
+        result[i * 4] = (word >> 56) as u8;
+        result[i * 4 + 1] = ((word >> 48) & 0xff_u64) as u8;
+        result[i * 4 + 2] = ((word >> 40) & 0xff_u64) as u8;
+        result[i * 4 + 3] = ((word >> 32) & 0xff_u64) as u8;
+        result[i * 4 + 4] = ((word >> 24) & 0xff_u64) as u8;
+        result[i * 4 + 5] = ((word >> 16) & 0xff_u64) as u8;
+        result[i * 4 + 6] = ((word >> 8) & 0xff_u64) as u8;
+        result[i * 4 + 7] = (word & 0xff_u64) as u8;
+    }
+
+    result
+}
 
 fn join_word(b1: u8, b2: u8, b3: u8, b4: u8, b5: u8, b6: u8, b7: u8, b8: u8) -> u64 {
     ((b1 as u64) << 56) | ((b2 as u64) << 48) | 

@@ -62,10 +62,33 @@ fn pad(message: Vec<u8>) -> Vec<u8> {
 }
 
 #[allow(non_snake_case)]
-fn parse(bytes: Vec<u8>) -> Vec<Vec<u64>> { Vec::new() }
+fn parse(bytes: Vec<u8>) -> Vec<Vec<u64>> {
+    let N = bytes.len() / BYTES_PER_BLOCK;
+    let mut blocks = vec![vec![0; WORDS_PER_BLOCK]; N];
+    let mut i: usize = 0;
+
+    for block in 0..N {
+        for word in 0..WORDS_PER_BLOCK {
+            blocks[block][word] = join_word(
+                bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3],
+                bytes[i + 4], bytes[i + 5], bytes[i + 6], bytes[i + 7]
+            );
+            i += 8;
+        }
+    }
+
+    blocks
+}
 
 #[allow(non_snake_case)]
 fn transform(blocks: Vec<Vec<u64>>) -> Vec<u8> { Vec::new() }
+
+fn join_word(b1: u8, b2: u8, b3: u8, b4: u8, b5: u8, b6: u8, b7: u8, b8: u8) -> u64 {
+    ((b1 as u64) << 56) | ((b2 as u64) << 48) | 
+    ((b3 as u64) << 40) | ((b4 as u64) << 32) |
+    ((b5 as u64) << 24) | ((b6 as u64) << 16) |
+    ((b7 as u64) << 8) | (b8 as u64)
+}
 
 fn rotr(x: u64, n: u64) -> u64 {
     (x >> n) | (x << (32 - n))

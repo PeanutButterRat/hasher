@@ -1,4 +1,5 @@
 pub mod sha256;
+pub mod sha512;
 
 use std::{path::PathBuf, fs};
 use std::process::exit;

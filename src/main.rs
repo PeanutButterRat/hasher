@@ -1,4 +1,5 @@
 pub mod sha256;
+pub mod sha512;
 
 use std::{path::PathBuf, fs};
 use std::process::exit;
@@ -24,6 +25,7 @@ fn main() {
 
     let algorithm = match cli.algorithm.to_ascii_lowercase().as_str() {
         "sha256" => sha256::hash,
+        "sha512" => sha512::hash,
         _ => {
             println!("unknown algorithm specified ({})", cli.algorithm);
             exit(1);

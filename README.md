@@ -136,6 +136,7 @@ Shown below is a list of all the algorithms that Hasher currently supports. This
 | Algorithm   | Command Line Argument   |
 |:-----------:|:-----------------------:|
 | SHA-256     | -sha256                 |
+| SHA-512     | -sha512                 |
 
 
 <!-- CONTRIBUTING -->

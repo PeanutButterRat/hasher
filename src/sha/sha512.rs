@@ -1,5 +1,4 @@
-// Developed using the specification published by NIST.
-// https://csrc.nist.gov/files/pubs/fips/180-2/final/docs/fips180-2.pdf
+use crate::sha::*;
 
 const BITS_PER_BLOCK: usize = 1024;
 const BITS_PER_BYTE: usize = 8;
@@ -29,36 +28,10 @@ const K: [u64; 80]= [
     0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817
 ];
 
-pub fn hash(message: Vec<u8>) -> Vec<u8> {
-    let bytes = pad(message);
-    let blocks = parse(bytes);
+pub fn hash(message_bytes: Vec<u8>) -> Vec<u8> {
+    let padded_message = pad_message(message_bytes, 1024, 128);
+    let blocks = parse(padded_message);
     transform(blocks)
-}
-
-fn pad(message: Vec<u8>) -> Vec<u8> {
-    let l: usize = message.len() * BITS_PER_BYTE;
-    let blocks = 1 + (l / BITS_PER_BLOCK) + if l % BITS_PER_BLOCK >= 896 { 1 } else { 0 };
-    let mut bytes: Vec<u8> = vec![0; blocks * BYTES_PER_BLOCK];
-
-    // Copy over the message bytes.
-    let mut i: usize = 0;
-    for byte in message {
-        bytes[i] = byte;
-        i += 1;
-    }
-
-    bytes[i] = 1 << 7;  // Append the '1' bit after the message.
-
-    // Add the length of the message to the last 128 bits.
-    i = bytes.len() - 16;
-    for j in (0..16).rev() {
-        let mask: u128 = 0xff << j * 8;
-        let byte = (l as u128 & mask) >> j * 8;
-        bytes[i] = byte as u8;
-        i += 1;
-    }
-
-    bytes
 }
 
 #[allow(non_snake_case)]

@@ -1,9 +1,9 @@
-pub mod sha256;
-pub mod sha512;
+mod sha;
 
-use std::{path::PathBuf, fs};
+use std::{fs, path::PathBuf};
 use std::process::exit;
 use clap::Parser;
+use sha::{sha256, sha512};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]

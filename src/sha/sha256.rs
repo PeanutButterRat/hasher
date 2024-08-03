@@ -1,10 +1,5 @@
 use crate::sha::*;
 
-const BITS_PER_BLOCK: usize = 512;
-const BITS_PER_BYTE: usize = 8;
-const BYTES_PER_BLOCK: usize = BITS_PER_BLOCK / BITS_PER_BYTE;
-const WORDS_PER_BLOCK: usize = BITS_PER_BLOCK / (BITS_PER_BYTE * 4);
-
 const K: [u32; 64] = [
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -18,24 +13,8 @@ const K: [u32; 64] = [
 
 pub fn hash(message_bytes: Vec<u8>) -> Vec<u8> {
     let padded_message = pad_message(message_bytes, 512, 64);
-    let blocks = parse(padded_message);
-    transform(blocks)
-}
-
-#[allow(non_snake_case)]
-fn parse(bytes: Vec<u8>) -> Vec<Vec<u32>> {
-    let N = bytes.len() / BYTES_PER_BLOCK;
-    let mut blocks = vec![vec![0; WORDS_PER_BLOCK]; N];
-    let mut i: usize = 0;
-
-    for block in 0..N {
-        for word in 0..WORDS_PER_BLOCK {
-            blocks[block][word] = join_word(bytes[i], bytes[i + 1], bytes[i + 2], bytes[i + 3]);
-            i += 4;
-        }
-    }
-
-    blocks
+    let parsed_blocks = parse_blocks(padded_message, 512);
+    transform(parsed_blocks)
 }
 
 #[allow(non_snake_case)]
@@ -110,10 +89,6 @@ fn transform(blocks: Vec<Vec<u32>>) -> Vec<u8> {
     }
 
     result
-}
-
-fn join_word(b1: u8, b2: u8, b3: u8, b4: u8) -> u32 {
-    ((b1 as u32) << 24) | ((b2 as u32) << 16) | ((b3 as u32) << 8) | (b4 as u32)
 }
 
 fn rotr(x: u32, n: u32) -> u32 {

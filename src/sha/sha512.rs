@@ -24,7 +24,7 @@ const K: [u64; 80]= [
 ];
 
 pub fn hash(message_bytes: Vec<u8>) -> Vec<u8> {
-    let padded_message = pad_message(message_bytes, 1024, 128);
+    let padded_message = pad_message::<u64>(message_bytes);
     let parsed_blocks = parse_blocks(padded_message, 1024);
     transform(parsed_blocks)
 }

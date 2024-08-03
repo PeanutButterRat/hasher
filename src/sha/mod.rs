@@ -8,6 +8,7 @@ pub mod sha256;
 pub mod sha512;
 
 const BITS_PER_BYTE: usize = 8;
+const WORDS_PER_BLOCK: usize = 16;
 
 trait Word: Sized + Copy + Default + BitOrAssign + Shl<usize, Output = Self> {
     fn from_byte(byte: u8, shift: usize) -> Self;
@@ -25,8 +26,11 @@ impl Word for u64 {
     }
 }
 
-fn pad_message(message_bytes: Vec<u8>, block_size_bits: usize, number_of_bits_reserved_for_message_size: usize) -> Vec<u8> {
+fn pad_message<T: Word>(message_bytes: Vec<u8>) -> Vec<u8> {
     // Calculate the space required for the padded message.
+    let bytes_per_word: usize = mem::size_of::<T>();
+    let block_size_bits = bytes_per_word * WORDS_PER_BLOCK * BITS_PER_BYTE;
+    let number_of_bits_reserved_for_message_size = bytes_per_word * BITS_PER_BYTE * 2;
     let message_length_bits = message_bytes.len() * BITS_PER_BYTE;
     let last_block_size = block_size_bits - number_of_bits_reserved_for_message_size;
     let number_of_blocks = if message_length_bits % block_size_bits >= last_block_size {

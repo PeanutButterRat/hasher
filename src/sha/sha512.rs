@@ -1,9 +1,14 @@
 use crate::sha::*;
 
+const INITIAL_HASH: [u64; 8] = [
+    0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
+    0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
+];
+
 pub fn hash(message_bytes: Vec<u8>) -> Vec<u8> {
     let padded_message = pad_message::<u64>(message_bytes);
     let parsed_blocks: Vec<Vec<u64>> = parse_blocks(padded_message);
-    transform(parsed_blocks, 80)
+    transform(parsed_blocks, INITIAL_HASH, 80)
 }
 
 // Output was tested against the SHA tool from https://emn178.github.io/online-tools/sha256.html.

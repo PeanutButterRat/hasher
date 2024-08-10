@@ -3,7 +3,7 @@ mod sha;
 use std::{fs, path::PathBuf};
 use std::process::exit;
 use clap::Parser;
-use sha::{sha256, sha512};
+use sha::{sha256, sha384, sha512};
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -25,6 +25,7 @@ fn main() {
 
     let algorithm = match cli.algorithm.to_ascii_lowercase().as_str() {
         "sha256" => sha256::hash,
+        "sha384" => sha384::hash,
         "sha512" => sha512::hash,
         _ => {
             println!("unknown algorithm specified ({})", cli.algorithm);

@@ -133,10 +133,11 @@ Shown below is a list of all the command line options that Hasher currently supp
 
 Shown below is a list of all the algorithms that Hasher currently supports. This list may be updated in the future as more algorithms are implemented.
 
-| Algorithm   | Command Line Argument   |
-|:-----------:|:-----------------------:|
-| SHA-256     | -sha256                 |
-| SHA-512     | -sha512                 |
+| Algorithm | Command Line Argument |
+|:---------:|:---------------------:|
+|  SHA-256  |        -sha256        |
+|  SHA-384  |        -sha384        |
+|  SHA-512  |        -sha512        |
 
 
 <!-- CONTRIBUTING -->

@@ -1,14 +1,16 @@
 use crate::sha::*;
 
 const INITIAL_HASH: [u64; 8] = [
-    0x6a09e667f3bcc908, 0xbb67ae8584caa73b, 0x3c6ef372fe94f82b, 0xa54ff53a5f1d36f1,
-    0x510e527fade682d1, 0x9b05688c2b3e6c1f, 0x1f83d9abfb41bd6b, 0x5be0cd19137e2179
+    0xcbbb9d5dc1059ed8, 0x629a292a367cd507, 0x9159015a3070dd17, 0x152fecd8f70e5939,
+    0x67332667ffc00b31, 0x8eb44a8768581511, 0xdb0c2e0d64f98fa7, 0x47b5481dbefa4fa4,
 ];
 
 pub fn hash(message_bytes: Vec<u8>) -> Vec<u8> {
     let padded_message = pad_message::<u64>(message_bytes);
     let parsed_blocks: Vec<Vec<u64>> = parse_blocks(padded_message);
-    transform(parsed_blocks, INITIAL_HASH, 80)
+    let mut bytes = transform(parsed_blocks, INITIAL_HASH, 80);
+    bytes.resize(384 / BITS_PER_BYTE, 0);
+    bytes
 }
 
 // Output was tested against the SHA tool from https://emn178.github.io/online-tools/sha256.html.
@@ -19,7 +21,7 @@ mod tests {
     #[test]
     fn abc() {
         let message = "abc".as_bytes().to_vec();
-        let expected = "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f";
+        let expected = "cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e7cc2358baeca134c825a7";
         let actual = hex::encode(hash(message));
 
         assert_eq!(actual, expected)
@@ -28,7 +30,7 @@ mod tests {
     #[test]
     fn alphabet() {
         let message = "abcedefghijklmnopqrstuvwxyz".as_bytes().to_vec();
-        let expected = "30eb6a75f0a781508e380fae61a8dc7040b660e40cc6fb8ab7e706e519ff70b8aa97904d8092c1dd881c26265afd536f4011d0ecd286175a60b0e71bde44d629";
+        let expected = "c3de3368cca0f9b93bb33fb9951c215672278a0dd4f761d662e9bfb08c1c341017efbb59cd07deaa217fa106dd929a20";
         let actual = hex::encode(hash(message));
 
         assert_eq!(actual, expected)
@@ -37,7 +39,7 @@ mod tests {
     #[test]
     fn random() {
         let message = "6d1e72ad03ddeb5de891e572e2396f8da015d899ef0e79503152d6010a3fe6916d1e72ad03ddeb5de891e572e2396f8da015d899ef0e79503152d6010a3fe6916d1e72ad03ddeb5de891e572e2396f8da015d899ef0e79503152d6010a3fe691".as_bytes().to_vec();
-        let expected = "a82213a62f6cc1e41b44fff5fbd6d0be9d5bfd361a595ec70b5a3f13a9522d5584b9e03c987a5a050ab304751c08950326ea988b0d90fe6b9c76f47fc2a0a28a";
+        let expected = "0abb43cf90db999605dff67b896dd94cd0bbe158242c35fc6f2a99fa203bb2460b7e6173a4ec3b5f571aaf256bee1f93";
         let actual = hex::encode(hash(message));
 
         assert_eq!(actual, expected)

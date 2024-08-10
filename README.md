@@ -87,7 +87,7 @@ To compile, follow these simple steps shown below. Alternatively, you can simply
 
 ### Prerequisites
 
-If you wish to compile Hasher from source, the only thing you will need is a Rust installation. You can download the latest version of the Rust compiler from [https://www.rust-lang.org/](https://www.rust-lang.org/tools/install).
+If you wish to compile Hasher from source, the only thing you will need is a Rust installation. You can download the latest version of the Rust compiler from [https://www.rust-lang.org/](https://www.rust-lang.org/tools/install). The steps shown below should work regardless of whether you are running Windows or Linux, but if you are on Windows, I recommend using [Git Bash](https://git-scm.com/downloads).
 
 ### Installation
 

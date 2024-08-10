@@ -7,7 +7,7 @@ use std::ops::*;
 
 pub mod sha256;
 pub mod sha512;
-mod sha384;
+pub mod sha384;
 
 const BITS_PER_BYTE: usize = 8;
 const WORDS_PER_BLOCK: usize = 16;
